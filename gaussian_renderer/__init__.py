@@ -45,13 +45,15 @@ def render(data, idx, pts_xyz, pts_rgb, rotations, scales, opacity, bg_color):
         sh_degree=3,
         campos=data['novel_view']['camera_center'][idx],
         prefiltered=False,
-        debug=False
+        debug=False,
+        antialiasing=False
     )
+    
 
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)
 
     # Rasterize visible Gaussians to image, obtain their radii (on screen).
-    rendered_image, _ = rasterizer(
+    render_pkg = rasterizer(
         means3D=pts_xyz,
         means2D=screenspace_points,
         shs=None,
@@ -60,6 +62,8 @@ def render(data, idx, pts_xyz, pts_rgb, rotations, scales, opacity, bg_color):
         scales=scales,
         rotations=rotations,
         cov3D_precomp=None)
+    
+    rendered_image = render_pkg[0]
 
     # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
     # They will be excluded from value updates used in the splitting criteria.
